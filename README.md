@@ -29,7 +29,7 @@ A library for JWT Authenticate for AspNet Core
   
   services.JWTAddAuthentication(Configuration);
 
-  services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri([your domain])); // http://localhost:5000
+  services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
   
   ```
   
