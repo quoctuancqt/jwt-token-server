@@ -28,17 +28,23 @@ A library for JWT Authenticate for AspNet Core
 2. Register Jwt Middleware into your project:
   ```ruby
   
-  services.JWTAddAuthentication(Configuration);
+  public void ConfigureServices(IServiceCollection services)
+  {
+    services.JWTAddAuthentication(Configuration);
 
-  services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
-  
-  ```
-  
-  ```ruby
-  
-  app.JWTBearerToken(Configuration);
+    services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
 
-  app.UseAuthentication();
+    services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+  }
+  
+  public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+  {
+    app.JWTBearerToken(Configuration);
+
+    app.UseAuthentication();
+    
+    app.UseMvc();
+  }
   
   ```
   
