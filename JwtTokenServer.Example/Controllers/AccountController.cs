@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using JwtTokenServer.Example.Dto;
 using JwtTokenServer.Proxies;
 using Microsoft.AspNetCore.Authorization;
@@ -10,19 +9,19 @@ namespace JwtTokenServer.Example.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class AccountController : ControllerBase
     {
         private readonly OAuthClient _oAuthClient;
 
-        public ValuesController(OAuthClient oAuthClient)
+        public AccountController(OAuthClient oAuthClient)
         {
             _oAuthClient = oAuthClient;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            return Ok(await Task.FromResult("Hello World"));
         }
 
         [HttpPost]
@@ -35,13 +34,6 @@ namespace JwtTokenServer.Example.Controllers
             if (response.Success) return Ok(response.Result);
 
             return BadRequest(response.Result);
-        }
-
-        [HttpGet("test")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Test()
-        {
-            return Ok(await Task.FromResult("Test"));
         }
     }
 }
