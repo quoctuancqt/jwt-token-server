@@ -29,8 +29,8 @@
         }
 
         public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
-            IConfiguration configuration,
-            string defaultScheme = JwtBearerDefaults.AuthenticationScheme, TokenValidationParameters tokenValidationParameters = null)
+            IConfiguration configuration, TokenValidationParameters tokenValidationParameters = null,
+            string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
             var tokenValidationParametersOpt = tokenValidationParameters ?? new TokenValidationParameters
             {
