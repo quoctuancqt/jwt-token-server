@@ -52,23 +52,35 @@ A library for JWT Authenticate for AspNet Core
   
   ```ruby
   
-  private readonly OAuthClient _oAuthClient;
-
-  public AccountController(OAuthClient oAuthClien)
+  [Route("api/[controller]")]
+  [Authorize]
+  [ApiController]
+  public class AccountController : ControllerBase
   {
-      _oAuthClient = oAuthClient;
-  }
-  
-  [HttpPost]
-  [Route("login")]
-  [AllowAnonymous]
-  public async Task<IActionResult> LoginAsync([FromBody] LoginDto dto)
-  {
-      var response = await _oAuthClient.EnsureApiTokenAsync(dto.Username, dto.Password);
+    private readonly OAuthClient _oAuthClient;
 
-      if (response.Success) return Ok(response.Result);
+    public AccountController(OAuthClient oAuthClien)
+    {
+        _oAuthClient = oAuthClient;
+    }
 
-      return BadRequest(response.Result);
+    [HttpPost]
+    [Route("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LoginAsync([FromBody] LoginDto dto)
+    {
+        var response = await _oAuthClient.EnsureApiTokenAsync(dto.Username, dto.Password);
+
+        if (response.Success) return Ok(response.Result);
+
+        return BadRequest(response.Result);
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        return Ok(await Task.FromResult("Hello World"));
+    }
   }
   
   ```
