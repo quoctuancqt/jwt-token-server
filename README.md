@@ -4,7 +4,6 @@ A library for JWT Authenticate for AspNet Core
 # How to use?
 1. Create a service class to implement IAccountManager interface. This class will verify your account is valid or not. If yes, you can add more detail into Claim by using "tokenRequest.Claims.Add()" method or add more info to the result what will be returned to client side by using "tokenRequest.Responses.Add()"
 
-*Example:*
   ```ruby
   
   public class AccountManager : IAccountManager
