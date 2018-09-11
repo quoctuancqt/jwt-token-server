@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Tuan Cao</Authors>
+    <Company></Company>
+    <Product>AspNet Core Component</Product>
+    <Description>This component will be registered JWT Authenticate in ASP.NET CORE project.</Description>
+    <Copyright>Copyright © 2018 Tuan Cao</Copyright>
+    <PackageProjectUrl>https://github.com/quoctuancqt/jwt-token-server</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <PackageTags>JWT, Authentication</PackageTags>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
