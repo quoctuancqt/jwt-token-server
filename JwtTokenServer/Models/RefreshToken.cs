@@ -10,7 +10,7 @@
         {
             TokenRequest = tokenRequest;
             Token = token;
-            Revoked = Revoked;
+            Revoked = revoked;
         }
 
         public TokenRequest TokenRequest { get; set; }
