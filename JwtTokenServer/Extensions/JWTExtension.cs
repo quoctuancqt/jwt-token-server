@@ -52,6 +52,15 @@
             return services;
         }
 
+        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+            Action<JwtBearerOptions> jwtBearerOptions = null, 
+            string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
+        {
+            services.AddAuthentication(defaultScheme).AddJwtBearer(jwtBearerOptions);
+
+            return services;
+        }
+
         public static IServiceCollection AddAccountManager<TAccountManager>(this IServiceCollection services)
             where TAccountManager : class, IAccountManager
         {
