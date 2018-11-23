@@ -3,6 +3,7 @@
     using JwtTokenServer.Middlewares;
     using JwtTokenServer.Models;
     using JwtTokenServer.Services;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
@@ -57,6 +58,15 @@
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
             services.AddAuthentication(defaultScheme).AddJwtBearer(jwtBearerOptions);
+
+            return services;
+        }
+
+        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+            Action<JwtBearerOptions> jwtBearerOptions = null,
+            Action<AuthenticationOptions> authenticationOptions = null)
+        {
+            services.AddAuthentication(authenticationOptions).AddJwtBearer(jwtBearerOptions);
 
             return services;
         }
