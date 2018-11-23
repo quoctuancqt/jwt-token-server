@@ -54,9 +54,25 @@
         }
 
         public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
-            Action<JwtBearerOptions> jwtBearerOptions = null, 
+            Action<JwtBearerOptions> jwtBearerOptions = null,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
+            if (jwtBearerOptions == null)
+            {
+                jwtBearerOptions = (options) =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
+                    };
+                };
+            }
+
             services.AddAuthentication(defaultScheme).AddJwtBearer(jwtBearerOptions);
 
             return services;
@@ -66,7 +82,30 @@
             Action<JwtBearerOptions> jwtBearerOptions = null,
             Action<AuthenticationOptions> authenticationOptions = null)
         {
-            services.AddAuthentication(authenticationOptions).AddJwtBearer(jwtBearerOptions);
+            if (jwtBearerOptions == null)
+            {
+                jwtBearerOptions = (options) =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
+                    };
+                };
+            }
+
+            if (authenticationOptions == null)
+            {
+                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(jwtBearerOptions);
+            }
+            else
+            {
+                services.AddAuthentication(authenticationOptions).AddJwtBearer(jwtBearerOptions);
+            }
 
             return services;
         }
