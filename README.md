@@ -30,6 +30,8 @@ A JWT Authenticate library for ASP.NET Core
   public void ConfigureServices(IServiceCollection services)
   {
     services.JWTAddAuthentication(Configuration);
+    
+    services.AddAccountManager<AccountManager>();
 
     services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
 
