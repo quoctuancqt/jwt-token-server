@@ -60,7 +60,7 @@ A JWT Authenticate library for ASP.NET Core
   {
     private readonly OAuthClient _oAuthClient;
 
-    public AccountController(OAuthClient oAuthClien)
+    public AccountController(OAuthClient oAuthClient)
     {
         _oAuthClient = oAuthClient;
     }
