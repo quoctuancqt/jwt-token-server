@@ -3,6 +3,7 @@
     using JwtTokenServer.Middlewares;
     using JwtTokenServer.Models;
     using JwtTokenServer.Services;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.Configuration;
@@ -53,10 +54,58 @@
         }
 
         public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
-            Action<JwtBearerOptions> jwtBearerOptions = null, 
+            Action<JwtBearerOptions> jwtBearerOptions = null,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
+            if (jwtBearerOptions == null)
+            {
+                jwtBearerOptions = (options) =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
+                    };
+                };
+            }
+
             services.AddAuthentication(defaultScheme).AddJwtBearer(jwtBearerOptions);
+
+            return services;
+        }
+
+        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+            Action<JwtBearerOptions> jwtBearerOptions = null,
+            Action<AuthenticationOptions> authenticationOptions = null)
+        {
+            if (jwtBearerOptions == null)
+            {
+                jwtBearerOptions = (options) =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
+                    };
+                };
+            }
+
+            if (authenticationOptions == null)
+            {
+                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(jwtBearerOptions);
+            }
+            else
+            {
+                services.AddAuthentication(authenticationOptions).AddJwtBearer(jwtBearerOptions);
+            }
 
             return services;
         }
