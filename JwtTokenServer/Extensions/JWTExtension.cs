@@ -14,6 +14,16 @@
 
     public static class JWTExtension
     {
+        private static TokenValidationParameters defaultOptions = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
+        };
+
         public static IApplicationBuilder JWTBearerToken(this IApplicationBuilder app,
             IConfiguration configuration, TokenProviderOptions tokenProviderOptions = null)
         {
@@ -33,22 +43,12 @@
             IConfiguration configuration, TokenValidationParameters tokenValidationParameters = null,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
-            var tokenValidationParametersOpt = tokenValidationParameters ?? new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
-            };
+            var tokenValidationParametersOpt = tokenValidationParameters ?? defaultOptions;
 
             services.AddAuthentication(defaultScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = tokenValidationParametersOpt;
             });
-
-            services.AddSingleton<ITokenService, TokenService>();
 
             return services;
         }
@@ -61,15 +61,7 @@
             {
                 jwtBearerOptions = (options) =>
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
-                    };
+                    options.TokenValidationParameters = defaultOptions;
                 };
             }
 
@@ -86,21 +78,18 @@
             {
                 jwtBearerOptions = (options) =>
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
-                    };
+                    options.TokenValidationParameters = defaultOptions;
                 };
             }
 
             if (authenticationOptions == null)
             {
-                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(jwtBearerOptions);
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(jwtBearerOptions);
             }
             else
             {
@@ -110,10 +99,27 @@
             return services;
         }
 
+        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = defaultOptions;
+            });
+
+            return services;
+        }
+
         public static IServiceCollection AddAccountManager<TAccountManager>(this IServiceCollection services)
             where TAccountManager : class, IAccountManager
         {
             services.AddScoped<IAccountManager, TAccountManager>();
+
+            services.AddSingleton<ITokenService, TokenService>();
 
             return services;
         }
