@@ -41,7 +41,7 @@
             return app;
         }
 
-        public static IServiceCollection CSharpJWTAddAuthentication(this IServiceCollection services,
+        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
             IConfiguration configuration,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
@@ -67,7 +67,7 @@
         }
 
         public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
-            IConfiguration configuration, TokenValidationParameters tokenValidationParameters = null,
+            TokenValidationParameters tokenValidationParameters = null,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
             var tokenValidationParametersOpt = tokenValidationParameters ?? defaultOptions;
