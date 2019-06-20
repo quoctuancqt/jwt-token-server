@@ -12,8 +12,8 @@ namespace JwtTokenServer.Example.Services
         {
             if (!username.Equals("admin") || !password.Equals("admin")) return new AccountResult(new { error = "Invalid user" });
 
-            tokenRequest.Claims.Add(new Claim(ClaimTypes.NameIdentifier, Guid.Empty.ToString()));
-            tokenRequest.Claims.Add(new Claim(ClaimTypes.Name, "Admin"));
+            tokenRequest.Claims.Add(new CustomClaim(ClaimTypes.NameIdentifier, Guid.Empty.ToString()));
+            tokenRequest.Claims.Add(new CustomClaim(ClaimTypes.Name, "Admin"));
 
             tokenRequest.Responses.Add("userId", Guid.Empty.ToString());
 

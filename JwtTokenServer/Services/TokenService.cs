@@ -41,6 +41,8 @@
             var now = DateTime.UtcNow;
 
             var token = new JwtSecurityToken(
+                issuer: dto.Issuer,
+                audience: dto.Audience,
                 claims: claims,
                 notBefore: now,
                 expires: now.Add(dto.Expiration),
