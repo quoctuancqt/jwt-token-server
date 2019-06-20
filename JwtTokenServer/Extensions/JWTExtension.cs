@@ -31,12 +31,39 @@
             {
                 Path = JwtSettings.DefaultPath,
                 SecurityKey = JwtSettings.DefaultSecretKey,
-                Expiration = TimeSpan.FromMinutes(+1440)
+                Expiration = TimeSpan.FromMinutes(+1440),
+                Audience = configuration.GetValue<string>("JWTSettings:Audience"),
+                Issuer = configuration.GetValue<string>("JWTSettings:Issuer")
             };
 
             app.UseMiddleware<TokenProviderMiddleware>(tokenProviderOptionsOpt);
 
             return app;
+        }
+
+        public static IServiceCollection CSharpJWTAddAuthentication(this IServiceCollection services,
+            IConfiguration configuration,
+            string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
+        {
+            string secretKey = string.IsNullOrEmpty(configuration.GetValue<string>("JWTSettings:SecurityKey"))
+                ? JwtSettings.DefaultSecretKey : configuration.GetValue<string>("JWTSettings:SecurityKey");
+
+            services.AddAuthentication(defaultScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration.GetValue<string>("JWTSettings:Issuer"),
+                    ValidAudience = configuration.GetValue<string>("JWTSettings:Audience"),
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(secretKey))
+                };
+            });
+
+            return services;
         }
 
         public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,

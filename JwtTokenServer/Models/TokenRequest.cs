@@ -14,8 +14,12 @@
             Expiration = options.Expiration;
             SecurityKey = options.SecurityKey;
             Responses = new Dictionary<string, object>();
+            Issuer = options.Issuer;
+            Audience = options.Audience;
         }
 
+        public string Issuer { get; set; }
+        public string Audience { get; set; }
         public List<Claim> Claims { get; set; }
         public TimeSpan Expiration { get; set; } = TimeSpan.FromMinutes(+30);
         public double TotalSeconds => Expiration.TotalSeconds;
