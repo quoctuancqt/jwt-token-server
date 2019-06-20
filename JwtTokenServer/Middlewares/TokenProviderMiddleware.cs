@@ -69,7 +69,11 @@
             string username,
             string password)
         {
-            var tokenRequest = new TokenRequest(_options, new List<Claim>());
+            var customClaims = new List<CustomClaim>();
+
+            customClaims.Add(new CustomClaim("iss", _options.Issuer));
+
+            var tokenRequest = new TokenRequest(_options, customClaims);
 
             IServiceProvider serviceProvider = context.RequestServices;
 
