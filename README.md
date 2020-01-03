@@ -25,6 +25,7 @@ A JWT Authenticate library for ASP.NET Core
   ```
 
 2. Register Jwt Middleware into your project:
+**For Asp.Net 2.2 using version 1.1.1
   ```ruby
   
   public void ConfigureServices(IServiceCollection services)
@@ -45,6 +46,43 @@ A JWT Authenticate library for ASP.NET Core
     app.UseAuthentication();
     
     app.UseMvc();
+  }
+  
+  ```
+  **For Asp.Net 3.1 using version 3.1.0
+  ```ruby
+  
+  public void ConfigureServices(IServiceCollection services)
+  {
+    services.AddJWTBearerToken(Configuration);
+    
+    services.AddAccountManager<AccountManager>();
+
+    services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
+
+    services.AddCors();
+
+    services.AddControllers().AddNewtonsoftJson();
+  }
+  
+  public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+  {
+      if (env.EnvironmentName.Equals("Development"))
+      {
+          app.UseDeveloperExceptionPage();
+      }
+
+      app.UseJWTBearerToken(Configuration);
+
+      app.UseRouting();
+
+      app.UseAuthentication();
+
+      app.UseAuthorization();
+
+      app.UseCors();
+
+      app.UseEndpoints(endpoints => endpoints.MapControllers());
   }
   
   ```
