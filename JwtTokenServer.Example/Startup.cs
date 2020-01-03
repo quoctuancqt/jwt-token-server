@@ -23,7 +23,7 @@ namespace JwtTokenServer.Example
         {
             services.AddAccountManager<AccountManager>();
 
-            services.JWTAddAuthentication(Configuration);
+            services.AddJWTBearerToken(Configuration);
 
             services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
 
@@ -40,7 +40,7 @@ namespace JwtTokenServer.Example
                 app.UseDeveloperExceptionPage();
             }
 
-            app.JWTBearerToken(Configuration);
+            app.UseJWTBearerToken(Configuration);
 
             app.UseRouting();
 

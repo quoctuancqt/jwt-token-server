@@ -25,13 +25,16 @@
                         Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
         };
 
-        public static IApplicationBuilder JWTBearerToken(this IApplicationBuilder app,
+        public static IApplicationBuilder UseJWTBearerToken(this IApplicationBuilder app,
             IConfiguration configuration, TokenProviderOptions tokenProviderOptions = null)
         {
+            string secretKey = string.IsNullOrEmpty(configuration.GetValue<string>("JWTSettings:SecurityKey"))
+                ? JwtSettings.DefaultSecretKey : configuration.GetValue<string>("JWTSettings:SecurityKey");
+
             var tokenProviderOptionsOpt = tokenProviderOptions ?? new TokenProviderOptions
             {
                 Path = JwtSettings.DefaultPath,
-                SecurityKey = JwtSettings.DefaultSecretKey,
+                SecurityKey = secretKey,
                 Expiration = TimeSpan.FromMinutes(+1440),
                 Audience = configuration.GetValue<string>("JWTSettings:Audience"),
                 Issuer = configuration.GetValue<string>("JWTSettings:Issuer")
@@ -42,7 +45,7 @@
             return app;
         }
 
-        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
             IConfiguration configuration,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
@@ -67,7 +70,7 @@
             return services;
         }
 
-        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
             TokenValidationParameters tokenValidationParameters = null,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
@@ -81,7 +84,7 @@
             return services;
         }
 
-        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
             Action<JwtBearerOptions> jwtBearerOptions = null,
             string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
         {
@@ -98,7 +101,7 @@
             return services;
         }
 
-        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services,
+        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
             Action<JwtBearerOptions> jwtBearerOptions = null,
             Action<AuthenticationOptions> authenticationOptions = null)
         {
@@ -127,7 +130,7 @@
             return services;
         }
 
-        public static IServiceCollection JWTAddAuthentication(this IServiceCollection services)
+        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services)
         {
             services.AddAuthentication(options =>
             {
