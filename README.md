@@ -25,7 +25,7 @@ A JWT Authenticate library for ASP.NET Core
   ```
 
 2. Register Jwt Middleware into your project:
-**For Asp.Net 2.2 using version 1.1.1
+**For Asp.Net 2.2 using version 1.1.1**
   ```ruby
   
   public void ConfigureServices(IServiceCollection services)
@@ -49,7 +49,7 @@ A JWT Authenticate library for ASP.NET Core
   }
   
   ```
-  **For Asp.Net 3.1 using version 3.1.0
+  **For Asp.Net 3.1 using version 3.1.0**
   ```ruby
   
   public void ConfigureServices(IServiceCollection services)
