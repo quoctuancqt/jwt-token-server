@@ -14,13 +14,6 @@
     {
         private readonly ISet<RefreshToken> _refreshTokens = new HashSet<RefreshToken>();
 
-        private readonly IDistributedCache _cache;
-
-        public TokenService(IDistributedCache cache)
-        {
-            _cache = cache;
-        }
-
         public IDictionary<string, object> GenerateToken(TokenRequest dto)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(dto.SecurityKey));
