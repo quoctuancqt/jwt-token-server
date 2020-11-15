@@ -50,7 +50,7 @@ A JWT Authenticate library for ASP.NET Core
   }
   
   ```
-  **For Asp.Net 3.1 using version 3.1.0**
+  **For Asp.Net 3.1 and upper**
   ```ruby
   
   public void ConfigureServices(IServiceCollection services)
