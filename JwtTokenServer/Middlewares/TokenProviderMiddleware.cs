@@ -4,11 +4,9 @@
     using JwtTokenServer.Models;
     using JwtTokenServer.Services;
     using Microsoft.AspNetCore.Http;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
     using System;
     using System.Collections.Generic;
-    using System.Security.Claims;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     public class TokenProviderMiddleware
@@ -150,12 +148,7 @@
 
         private string ObjToJson<TModel>(TModel model)
         {
-            var jsonSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-
-            return JsonConvert.SerializeObject(model, jsonSettings);
+            return JsonSerializer.Serialize(model);
         }
         #endregion
     }

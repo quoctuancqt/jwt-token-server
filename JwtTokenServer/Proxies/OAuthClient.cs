@@ -1,10 +1,10 @@
 ﻿namespace JwtTokenServer.Proxies
 {
     using JwtTokenServer.Models;
-    using Newtonsoft.Json;
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Http;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     public class OAuthClient
@@ -27,11 +27,11 @@
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return new JwtResult(true, JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()));
+                return new JwtResult(true, JsonSerializer.Deserialize<object>(await response.Content.ReadAsStringAsync()));
             }
             else
             {
-                return new JwtResult(false, JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()));
+                return new JwtResult(false, JsonSerializer.Deserialize<object>(await response.Content.ReadAsStringAsync()));
             }
         }
 
@@ -45,11 +45,11 @@
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return new JwtResult(true, JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()));
+                return new JwtResult(true, JsonSerializer.Deserialize<object>(await response.Content.ReadAsStringAsync()));
             }
             else
             {
-                return new JwtResult(false, JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()));
+                return new JwtResult(false, JsonSerializer.Deserialize<object>(await response.Content.ReadAsStringAsync()));
             }
         }
     }
