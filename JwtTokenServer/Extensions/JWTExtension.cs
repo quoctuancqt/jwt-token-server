@@ -1,43 +1,34 @@
-﻿namespace JwtTokenServer.Extensions
-{
-    using JwtTokenServer.Middlewares;
-    using JwtTokenServer.Models;
-    using JwtTokenServer.Services;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Authentication.JwtBearer;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.Extensions.Caching.Distributed;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.IdentityModel.Tokens;
-    using System;
-    using System.Text;
+﻿using JwtTokenServer.Middlewares;
+using JwtTokenServer.Models;
+using JwtTokenServer.Proxies;
+using JwtTokenServer.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
+namespace JwtTokenServer.Extensions
+{
     public static class JWTExtension
     {
-        private static TokenValidationParameters defaultOptions = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(JwtSettings.DefaultSecretKey))
-        };
-
-        public static IApplicationBuilder UseJWTBearerToken(this IApplicationBuilder app,
+        public static IApplicationBuilder UseJWTBearerTokenMiddleware(this IApplicationBuilder app,
             IConfiguration configuration, TokenProviderOptions tokenProviderOptions = null)
         {
-            string secretKey = string.IsNullOrEmpty(configuration.GetValue<string>("JWTSettings:SecurityKey"))
-                ? JwtSettings.DefaultSecretKey : configuration.GetValue<string>("JWTSettings:SecurityKey");
+            var jwtOptions = configuration.Bind<JwtOptions>(JwtOptions.Name);
+
+            string secretKey = string.IsNullOrEmpty(jwtOptions.SecurityKey) ? JwtSettings.DefaultSecretKey : jwtOptions.SecurityKey;
 
             var tokenProviderOptionsOpt = tokenProviderOptions ?? new TokenProviderOptions
             {
                 Path = JwtSettings.DefaultPath,
                 SecurityKey = secretKey,
                 Expiration = TimeSpan.FromMinutes(+1440),
-                Audience = configuration.GetValue<string>("JWTSettings:Audience"),
-                Issuer = configuration.GetValue<string>("JWTSettings:Issuer")
+                Audience = jwtOptions.Audience,
+                Issuer = jwtOptions.Issuer
             };
 
             app.UseMiddleware<TokenProviderMiddleware>(tokenProviderOptionsOpt);
@@ -45,110 +36,63 @@
             return app;
         }
 
-        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
-            IConfiguration configuration,
-            string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
+        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services, IConfiguration configuration,
+            string defaultScheme = JwtBearerDefaults.AuthenticationScheme,
+            Action<AuthenticationOptions> authenticationOptions = null,
+            TokenValidationParameters tokenValidationParameters = null,
+            Action<JwtBearerOptions> jwtBearerOptions = null)
         {
-            string secretKey = string.IsNullOrEmpty(configuration.GetValue<string>("JWTSettings:SecurityKey"))
-                ? JwtSettings.DefaultSecretKey : configuration.GetValue<string>("JWTSettings:SecurityKey");
+            services.AddJwtTokenServices(configuration);
 
-            services.AddAuthentication(defaultScheme).AddJwtBearer(options =>
+            var jwtOptions = configuration.Bind<JwtOptions>(JwtOptions.Name);
+
+            string secretKey = string.IsNullOrEmpty(jwtOptions.SecurityKey) ? JwtSettings.DefaultSecretKey : jwtOptions.SecurityKey;
+
+            AuthenticationBuilder builder = default;
+
+            if (authenticationOptions == null)
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                builder = services.AddAuthentication(defaultScheme);
+            }
+            else
+            {
+                builder = services.AddAuthentication(authenticationOptions);
+            }
+
+            builder.AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = tokenValidationParameters ?? new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration.GetValue<string>("JWTSettings:Issuer"),
-                    ValidAudience = configuration.GetValue<string>("JWTSettings:Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(secretKey))
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
                 };
+
+                jwtBearerOptions?.Invoke(options);
             });
 
             return services;
         }
 
-        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
-            TokenValidationParameters tokenValidationParameters = null,
-            string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
+        public static IServiceCollection AddJwtTokenServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var tokenValidationParametersOpt = tokenValidationParameters ?? defaultOptions;
+            services.AddOptions<JwtOptions>().Bind(configuration.GetSection(JwtOptions.Name));
 
-            services.AddAuthentication(defaultScheme).AddJwtBearer(options =>
+            var jwtOptions = configuration.Bind<JwtOptions>(JwtOptions.Name);
+
+            services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri(jwtOptions.Issuer));
+
+            services.Scan(scan =>
             {
-                options.TokenValidationParameters = tokenValidationParametersOpt;
+                scan.FromEntryAssembly()
+                    .AddClasses(classes => classes.AssignableTo<IAccountManager>())
+                    .AsImplementedInterfaces()
+                    .WithScopedLifetime();
             });
-
-            return services;
-        }
-
-        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
-            Action<JwtBearerOptions> jwtBearerOptions = null,
-            string defaultScheme = JwtBearerDefaults.AuthenticationScheme)
-        {
-            if (jwtBearerOptions == null)
-            {
-                jwtBearerOptions = (options) =>
-                {
-                    options.TokenValidationParameters = defaultOptions;
-                };
-            }
-
-            services.AddAuthentication(defaultScheme).AddJwtBearer(jwtBearerOptions);
-
-            return services;
-        }
-
-        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services,
-            Action<JwtBearerOptions> jwtBearerOptions = null,
-            Action<AuthenticationOptions> authenticationOptions = null)
-        {
-            if (jwtBearerOptions == null)
-            {
-                jwtBearerOptions = (options) =>
-                {
-                    options.TokenValidationParameters = defaultOptions;
-                };
-            }
-
-            if (authenticationOptions == null)
-            {
-                services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer(jwtBearerOptions);
-            }
-            else
-            {
-                services.AddAuthentication(authenticationOptions).AddJwtBearer(jwtBearerOptions);
-            }
-
-            return services;
-        }
-
-        public static IServiceCollection AddJWTBearerToken(this IServiceCollection services)
-        {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = defaultOptions;
-            });
-
-            return services;
-        }
-
-        public static IServiceCollection AddAccountManager<TAccountManager>(this IServiceCollection services)
-            where TAccountManager : class, IAccountManager
-        {
-            services.AddScoped<IAccountManager, TAccountManager>();
 
             services.AddSingleton<ITokenService, TokenService>();
 

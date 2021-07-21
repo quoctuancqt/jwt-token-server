@@ -21,8 +21,6 @@ namespace JwtTokenServer.Example
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAccountManager<AccountManager>();
-
             services.AddJWTBearerToken(Configuration);
 
             services.AddHttpClient<OAuthClient>(typeof(OAuthClient).Name, client => client.BaseAddress = new Uri("http://localhost:5000"));
@@ -40,7 +38,7 @@ namespace JwtTokenServer.Example
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseJWTBearerToken(Configuration);
+            app.UseJWTBearerTokenMiddleware(Configuration);
 
             app.UseRouting();
 
