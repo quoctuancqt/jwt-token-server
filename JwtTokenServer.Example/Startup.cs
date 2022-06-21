@@ -1,5 +1,4 @@
-﻿using JwtTokenServer.Example.Services;
-using JwtTokenServer.Extensions;
+﻿using JwtTokenServer.Extensions;
 using JwtTokenServer.Proxies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

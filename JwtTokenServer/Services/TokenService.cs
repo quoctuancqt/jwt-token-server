@@ -1,7 +1,6 @@
 ﻿namespace JwtTokenServer.Services
 {
     using JwtTokenServer.Models;
-    using Microsoft.Extensions.Caching.Distributed;
     using Microsoft.IdentityModel.Tokens;
     using System;
     using System.Collections.Generic;
